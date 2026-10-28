@@ -13,7 +13,7 @@ For SD5913 Assignment 3, I wanted to turn a camera portrait into a playful ASCII
 
 ## Classmate trial and response
 
-Two classmates tried the experience. The feedback below was reported by the project owner; it is paraphrased, not a verbatim quotation. No names or recordings are retained. Whether instructions were withheld before testing has not been recorded.
+Two classmates tried the experience. The feedback below was reported by the project owner; it is paraphrased, not a verbatim quotation. No names or recordings are retained. Both classmates tried the experience independently before asking the owner for help; no instructions were given before their initial attempts.
 
 | Participant | Observation | Adopted change |
 | --- | --- | --- |

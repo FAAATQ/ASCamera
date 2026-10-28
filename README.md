@@ -39,7 +39,7 @@ No frontend build, CDN, API key or runtime package installation is required. Use
 
 ![Early prototype screenshot, not the current interface](demo-1200.png)
 
-This is an early prototype screenshot; an up-to-date screenshot remains to be added.
+This screenshot is a synthetic local preview used to document the interface; it is not a participant's photograph. The current browser layout remains subject to real-device visual review.
 
 ## Privacy and limitations
 
@@ -58,7 +58,7 @@ uv run tests/launcher.py
 zsh -n Run.command
 ```
 
-The latest reported regression passed 10 unit tests, 2 launcher tests and 79 browser checks (91 total). Browser checks use synthetic camera streams, not physical cameras. They include off-state capture startup, reduced knob sensitivity, fixed knob lighting and stable idle/live/frozen machine dimensions at desktop and mobile sizes. These results do not guarantee performance or compatibility on every device.
+The latest reported regression passed 10 unit tests, 2 launcher tests and 79 browser checks (91 total). Browser checks use synthetic camera streams, not physical cameras. They include off-state capture startup, reduced knob sensitivity, fixed knob lighting and stable idle/live/frozen machine dimensions at desktop and mobile sizes. These results do not guarantee performance or compatibility on every device. Two classmates independently tried the experience before asking the owner for help; their feedback and resulting changes are recorded in PROCESS.md.
 
 ## Process and credits
 
