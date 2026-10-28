@@ -38,7 +38,7 @@ class LauncherTests(unittest.TestCase):
             for _ in range(100):
                 try:
                     with urllib.request.urlopen('http://127.0.0.1:18766/', timeout=1) as response:
-                        self.assertIn(b'ASCII Photo Booth', response.read())
+                        self.assertIn(b'ASCamera - FATQ', response.read())
                         break
                 except OSError:
                     if process.poll() is not None:

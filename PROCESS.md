@@ -38,7 +38,18 @@ After the environment explicitly permitted the original workspace, corrected the
 
 Final local regression: 9 pure tests, 28 browser checks, and 2 dedicated launcher tests passed. The browser suite uses synthetic Canvas streams only: colored edges and an interior fiducial at 640×480, 960×540, 480×640 and 540×960, each at 1200px and 400px viewport widths and 40/96/160 columns (24 PNG exports). Assertions cover source-aspect viewfinder bounds, unchanged preview/result framing, mirrored side edges, top/bottom preservation, fiducial retention, decoded PNG geometry, photo-margin bounds and separate footer content. Screenshots now go to the temporary directory rather than overwriting repository examples. No real camera or human visual/usability trial was performed; no global configuration, commit or push was made.
 
-## Pending human trial — not yet performed
+## Reported peer trial — feedback supplied by the project owner
+
+Two classmates tried the experience. The owner supplied the following feedback; no names, recordings, exact trial date or verbatim quotations were provided. These are paraphrases, not assistant-observed sessions. Whether instructions were withheld before the trial has not been established.
+
+| Participant | Reported observation | Decision and requested improvement |
+| --- | --- | --- |
+| A | The density knob felt too sensitive. | Accept: reduce pointer-drag sensitivity to 60% of the existing mapping. Preserve the 40–160-column range, step size and keyboard operation; use more physical travel for the same density change. |
+| B | It was unclear how to begin; pressing Take photo should also turn on camera power. | Accept: a deliberate Take photo press while off starts the camera and switches power on. Once live preview is ready, the next press freezes the picture; further presses resume/freeze as before. Permission errors and repeated clicks must still receive clear feedback. |
+
+Both decisions have now been implemented. Automated regression reported 10 pure tests, 2 launcher tests and 78 browser checks passing (90 total), using synthetic camera streams rather than a physical camera. A 40px pointer drag changes the default density from 96 to 120 with the reduced mapping. Off-state Take photo starts one camera request and enters live preview without immediately capturing; repeated clicks while permission is pending do not duplicate requests. The viewport correction also keeps idle/live/frozen enclosure dimensions stable at 1920×1080, 1680×898 and 390×844. Neither classmate has been reported to have retested the revised version; a follow-up trial is still needed. These changes have not yet been deployed or pushed.
+
+## Remaining human trial checks
 
 Ask a willing participant to use the current camera interaction with informed permission. No public demo is present. Do not retain their photo without explicit agreement. The earlier demo/countdown trial questions are superseded by these current questions.
 
@@ -48,7 +59,7 @@ Ask a willing participant to use the current camera interaction with informed pe
 - Can they copy text and find/open the timestamped, flat, signed PNG on desktop/mobile?
 - Does Finder launch work, and does the real camera indicator switch off after power OFF or hiding/leaving the page?
 
-Record what actually happened, the participant's words, and one resulting change only after the trial. User feedback, final acceptance and any course-specific peer-trial requirement remain pending. No grade, compliance result or fabricated participant feedback is asserted.
+The two owner-reported observations and adopted decisions are recorded above. Remaining device checks and follow-up trials are not yet verified. Record further observations and actual improvements without inventing quotations or claiming final acceptance, grades or complete course compliance.
 
 ## Live preview and camera switching iteration
 

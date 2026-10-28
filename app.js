@@ -63,7 +63,7 @@ function render(source=image){if(!source)return;const w=source.videoWidth||sourc
 function fit(){if(!['preview','result'].includes(state)||!geometry)return;const source=state==='result'?image:$('video');frame(source.videoWidth||source.width,source.videoHeight||source.height);const scale=$('viewfinder').clientWidth/geometry.width;const pre=$('ascii');pre.style.font=FONT;pre.style.lineHeight=`${geometry.lineHeight}px`;pre.style.width=`${geometry.width}px`;pre.style.height=`${geometry.height}px`;pre.style.transform=`scale(${scale})`;const c=$('crt');c.width=Math.max(1,Math.round($('viewfinder').clientWidth));c.height=Math.max(1,Math.round($('viewfinder').clientHeight));c.getContext('2d').drawImage(flat,0,0,c.width,c.height);}
 function result(c,isDemo){image=c;demo=isDemo;cancelAnimationFrame(animation);animation=null;show('result',isDemo?'Demo portrait generated locally. No camera was accessed.':'Frozen. Camera remains active; Capture resumes live. Copy or save this frame.');render();}
 function unavailable(){ $('status').textContent=['idle','error'].includes(state)?'Turn on camera power first.':state==='requesting'?'Waiting for camera permission. Use Camera power to cancel.':'Live camera required for this action. Press Capture to resume live.';}
-function capture(){if(state==='result'&&sessionPower&&stream){image=null;show('preview','Live ASCII targets 18 FPS. Capture freezes the current frame.');render($('video'));lastFrame=-Infinity;cancelAnimationFrame(animation);animation=requestAnimationFrame(live);return;}if(state!=='preview'){unavailable();return;}const v=$('video');if(v.readyState<2||!v.videoWidth){$('status').textContent='Camera is warming up. Please try again.';return;}try{const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const ctx=c.getContext('2d');if(mirrored){ctx.translate(c.width,0);ctx.scale(-1,1);}ctx.drawImage(v,0,0);result(c,false);}catch{fail('No camera frame available. Please retry.');}}
+function capture(){if(!sessionPower&&['idle','error'].includes(state)){start();return;}if(state==='result'&&sessionPower&&stream){image=null;show('preview','Live ASCII targets 18 FPS. Capture freezes the current frame.');render($('video'));lastFrame=-Infinity;cancelAnimationFrame(animation);animation=requestAnimationFrame(live);return;}if(state!=='preview'){unavailable();return;}const v=$('video');if(v.readyState<2||!v.videoWidth){$('status').textContent='Camera is warming up. Please try again.';return;}try{const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const ctx=c.getContext('2d');if(mirrored){ctx.translate(c.width,0);ctx.scale(-1,1);}ctx.drawImage(v,0,0);result(c,false);}catch{fail('No camera frame available. Please retry.');}}
 function makeDemo(){reset();const c=document.createElement('canvas');c.width=640;c.height=480;const x=c.getContext('2d');const g=x.createRadialGradient(320,220,20,320,240,370);g.addColorStop(0,'#64735e');g.addColorStop(1,'#080e0a');x.fillStyle=g;x.fillRect(0,0,640,480);const oval=(cx,cy,rx,ry,color)=>{x.fillStyle=color;x.beginPath();x.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);x.fill();};oval(320,480,170,150,'#88927c');oval(320,230,110,150,'#1a231b');oval(320,250,83,113,'#cbd1ab');oval(320,150,94,55,'#263326');oval(288,238,10,7,'#263326');oval(352,238,10,7,'#263326');oval(322,275,10,18,'#8b9876');x.strokeStyle='#58674d';x.lineWidth=5;x.beginPath();x.arc(320,292,28,0.2,Math.PI-0.2);x.stroke();result(c,true);}
 $('switch').onclick=()=>{if(state==='preview'&&switchAvailable)start(selectedFacing==='user'?'environment':'user',true);else if(state==='preview')$('status').textContent='Only one camera detected; switching is unavailable.';else unavailable();};$('capture').onclick=capture;
 $('density').oninput=()=>{syncDial();if(['preview','result'].includes(state))render(state==='result'?image:$('video'));else $('status').textContent='Density set. Camera power is unchanged.';};
@@ -94,7 +94,7 @@ const ARC_START=-135, ARC_SWEEP=270;
 function syncDial(){const v=Number($('density').value);$('boot-density').textContent=String(v).padStart(3,'0');$('density-value').textContent=`DENSITY ${String(v).padStart(3,'0')}`;$('density-box').style.setProperty('--knob-angle',`${ARC_START+(v-40)/120*ARC_SWEEP}deg`);$('density').setAttribute('aria-valuetext',`${v} columns`);}
 let knobDrag=null;
 $('density').addEventListener('pointerdown',e=>{if($('density').disabled)return;e.preventDefault();$('density').focus();$('density').setPointerCapture(e.pointerId);knobDrag={x:e.clientX,y:e.clientY,value:Number($('density').value)};});
-$('density').addEventListener('pointermove',e=>{if(!knobDrag)return;e.preventDefault();const v=Math.max(40,Math.min(160,Math.round((knobDrag.value+(e.clientX-knobDrag.x)-(e.clientY-knobDrag.y))/8)*8));$('density').value=v;syncDial();$('density').dispatchEvent(new Event('input'));});
+$('density').addEventListener('pointermove',e=>{if(!knobDrag)return;e.preventDefault();const v=Math.max(40,Math.min(160,Math.round((knobDrag.value+0.6*((e.clientX-knobDrag.x)-(e.clientY-knobDrag.y)))/8)*8));$('density').value=v;syncDial();$('density').dispatchEvent(new Event('input'));});
 for(const name of ['pointerup','pointercancel','lostpointercapture'])$('density').addEventListener(name,()=>knobDrag=null);
 $('density').addEventListener('input',syncDial);syncDial();
 
@@ -102,17 +102,7 @@ const scaleTrack=document.querySelector('.density-track');for(let i=0;i<=10;i++)
 
 const dotArm=document.createElement('span');dotArm.className='knob-dot-arm';dotArm.setAttribute('aria-hidden','true');dotArm.innerHTML='<span class="knob-dot"></span>';document.querySelector('.density-control').append(dotArm);
 
-// Scale the complete desktop console (screen + controls) to the real viewport height.
-function fitMachine(){
-  const machine=document.querySelector('.machine');
-  if(!machine)return;
-  if(window.innerWidth<=600){document.documentElement.style.removeProperty('--fit-scale');return;}
-  const zoom=parseFloat(getComputedStyle(machine).zoom)||1;
-  const rect=machine.getBoundingClientRect();
-  const naturalW=rect.width/zoom,naturalH=rect.height/zoom;
-  const scale=Math.min(1,(window.innerHeight-96)/naturalH,(window.innerWidth-112)/naturalW);
-  document.documentElement.style.setProperty('--fit-scale',String(Math.max(.5,scale)));
-}
-requestAnimationFrame(fitMachine);
-window.addEventListener('load',fitMachine,{once:true});
-window.addEventListener('resize',fitMachine);
+// Measure unscaled layout dimensions; transforms never feed back into responsive layout.
+function fitMachine(){const machine=document.querySelector('.machine');if(!machine)return;const desktop=innerWidth>600;const scale=desktop?Math.min(1,(innerHeight-72)/machine.offsetHeight,(innerWidth-64)/machine.offsetWidth):1;document.documentElement.style.setProperty('--fit-scale',String(Math.max(.1,scale)));if(desktop){const main=machine.parentElement;main.style.width=`${machine.offsetWidth*scale}px`;main.style.height=`${machine.offsetHeight*scale}px`;}else{machine.parentElement.style.removeProperty('width');machine.parentElement.style.removeProperty('height');}}
+const machineObserver=new ResizeObserver(()=>{fitMachine();fit();alignRecess();});machineObserver.observe(document.querySelector('.machine'));
+requestAnimationFrame(fitMachine);window.addEventListener('resize',fitMachine);window.addEventListener('load',fitMachine,{once:true});

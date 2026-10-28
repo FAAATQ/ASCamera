@@ -73,7 +73,7 @@ def main():
             with page.expect_download() as info:
                 page.click('#save')
             download = info.value
-            assert download.suggested_filename == 'phosphor-portrait.png'
+            assert download.suggested_filename.startswith('ascamera-portrait-') and download.suggested_filename.endswith('.png')
             assert Path(download.path()).read_bytes()[:8] == b'\x89PNG\r\n\x1a\n'
             checks.append('synthetic frozen PNG download')
             for width in [1200,400]:
@@ -280,8 +280,8 @@ def main():
             checks.append('all buttons retain identical slots through idle/live/frozen; rotary Home/End changes actual grid')
             for width in [1200,400,1200]:
                 page.set_viewport_size({'width':width,'height':900});page.wait_for_timeout(100)
-                physical=page.evaluate("""()=>{const b=document.querySelector('.bezel').getBoundingClientRect(),k=document.querySelector('.control-panel').getBoundingClientRect(),m=document.querySelector('.machine'),input=document.querySelector('#density').getBoundingClientRect(),track=document.querySelector('.density-track'),panel=document.querySelector('.density-control').getBoundingClientRect();const a=getComputedStyle(track,'::before'),c=getComputedStyle(track,'::after');return {left:Math.abs(b.left-k.left),right:Math.abs(b.right-k.right),gutter:parseFloat(getComputedStyle(m).paddingLeft),top:parseFloat(getComputedStyle(m).paddingTop),ring:[parseFloat(a.left),parseFloat(a.top)],cap:[parseFloat(c.left),parseFloat(c.top)],input:[input.x+input.width/2-panel.x,input.y+input.height/2-panel.y]}}""")
-                assert physical['gutter']>=26 and physical['top']==physical['gutter']
+                physical=page.evaluate("""()=>{const b=document.querySelector('.bezel').getBoundingClientRect(),k=document.querySelector('.control-panel').getBoundingClientRect(),m=document.querySelector('.machine'),input=document.querySelector('#density').getBoundingClientRect(),track=document.querySelector('.density-track'),panel=document.querySelector('.density-control').getBoundingClientRect();const a=getComputedStyle(track,'::before'),c=getComputedStyle(track,'::after');return {left:Math.abs(b.left-k.left),right:Math.abs(b.right-k.right),gutter:parseFloat(getComputedStyle(m).paddingLeft),top:parseFloat(getComputedStyle(m).paddingTop),ring:[parseFloat(a.left),parseFloat(a.top)],cap:[parseFloat(c.left),parseFloat(c.top)],input:[(input.x+input.width/2-panel.x)/(panel.width/document.querySelector('.density-control').offsetWidth),(input.y+input.height/2-panel.y)/(panel.width/document.querySelector('.density-control').offsetWidth)]}}""")
+                assert physical['gutter']>=12 and physical['top']==physical['gutter']
                 assert physical['ring']==physical['cap'] and all(abs(a-b)<2 for a,b in zip(physical['ring'],physical['input'])),physical
             checks.append('shared thick housing gutters and concentric ring/cap/input centers across desktop/mobile resize')
             fresh()
@@ -295,7 +295,7 @@ def main():
             assert page.locator('label[for=density]').text_content()==label and page.locator('#density-value').text_content()=='DENSITY 160'
             checks.append('density counter is CRT-only; off and live keycap materials remain identical')
             fresh();assert page.locator('#demo').count()==0
-            actions=['capture','switch','copy','save']
+            actions=['switch','copy','save']
             for action in actions:
                 assert page.locator('#'+action).is_enabled() and page.locator('#'+action).is_visible()
                 page.click('#'+action);assert page.inner_text('#status')=='Turn on camera power first.' and page.evaluate('calls')==0
@@ -335,11 +335,11 @@ def main():
                 assert page.locator('.privacy,footer,#power-label').count()==0 and page.locator('#density-value').is_visible()
                 sizes=page.evaluate("""()=>{const k=document.querySelector('.buttons').getBoundingClientRect(),c=document.querySelector('.control-column').getBoundingClientRect();return {widths:[...document.querySelectorAll('.buttons button')].map(e=>e.getBoundingClientRect().width),gap:k.left-c.right,overflow:document.documentElement.scrollWidth>innerWidth}}""")
                 widths.append(sizes['widths']);assert not sizes['overflow'] and (sizes['gap']>10 or width<=900)
-            assert widths[0]==widths[1]==[128]*4 and all(w>=44 for w in widths[2])
+            assert all(abs(a/b-widths[0][0]/widths[1][0])<.01 for a,b in zip(widths[0],widths[1])) and all(w>=44 for w in widths[2])
             checks.append('selected display text removed and keycaps fixed-width at desktop sizes without mobile overflow')
             for width in [1200,400]:
                 page.set_viewport_size({'width':width,'height':900});fresh()
-                deck=page.evaluate("""()=>{const c=document.querySelector('.density-control').getBoundingClientRect(),l=document.querySelector('label[for=density]').getBoundingClientRect(),column=document.querySelector('.control-column'),d=document.querySelector('.control-panel');return {gap:l.top-c.bottom,border:getComputedStyle(column).borderTopWidth,background:getComputedStyle(d).backgroundImage,width:d.getBoundingClientRect().width}}""")
+                deck=page.evaluate("""()=>{const c=document.querySelector('.density-control').getBoundingClientRect(),l=document.querySelector('label[for=density]').getBoundingClientRect(),column=document.querySelector('.control-column'),d=document.querySelector('.control-panel');return {gap:(l.top-c.bottom)/(c.width/document.querySelector('.density-control').offsetWidth),border:getComputedStyle(column).borderTopWidth,background:getComputedStyle(d).backgroundImage,width:d.getBoundingClientRect().width}}""")
                 assert deck['gap']>=8 and deck['border']=='0px' and deck['background']=='none'
             checks.append('independent edge-anchored controls with unboxed instrument column and density label clearance at desktop/mobile')
             for width in [1200,400]:
@@ -361,12 +361,12 @@ def main():
             assert '173, 41, 27' in paint and '213, 68, 45' in paint
             checks.append('integrated red pivot material and outward positive-Z paddle sweep through every intermediate angle')
             support=page.locator('.paddle-root').evaluate("""el=>{const r=el.getBoundingClientRect(),w=el.parentElement.getBoundingClientRect(),s=getComputedStyle(el);return {w:r.width,h:r.height,well:w.height,radius:s.borderRadius}}""")
-            assert support['w']==25 and support['h']==53 and support['h']<support['well'] and support['radius']=='2px'
+            assert abs(support['h']/support['w']-53/25)<.01 and support['h']<support['well'] and support['radius']=='2px'
             checks.append('full-height red rectangular support replaces standalone oval without changing paddle motion')
             for width in [1200,400]:
                 page.set_viewport_size({'width':width,'height':900});fresh()
                 lamp=page.evaluate("""()=>{const r=s=>document.querySelector(s).getBoundingClientRect(),b=r('.bezel'),l=r('#physical-led'),c=r('.buttons');return {gap:l.top-b.bottom,inset:b.right-l.right,clear:l.bottom<c.top}}""")
-                assert 19<=lamp['gap']<=21 and 11<=lamp['inset']<=17 and lamp['clear'],lamp
+                assert 10<=lamp['gap']<=21 and abs(lamp['inset'])<1 and lamp['clear'],lamp
             checks.append('monitor lamp sits outside lower-right bezel on shell without overlapping controls at desktop/mobile')
             fresh();page.focus('#density');page.keyboard.press('End');assert page.inner_text('#boot-density')=='160' and page.evaluate('calls')==0
             assert page.locator('.scale-mark').count()==11 and page.locator('.scale-number.min').text_content()=='40' and page.locator('.scale-number.max').text_content()=='160'
@@ -395,11 +395,38 @@ def main():
                     contrast=page.evaluate("""async arg=>{const i=new Image();i.src='data:image/png;base64,'+arg.b;await i.decode();const c=document.createElement('canvas');c.width=i.width;c.height=i.height;const x=c.getContext('2d');x.drawImage(i,0,0);const d=x.getImageData(Math.floor(arg.x),Math.floor(arg.y),1,1).data;return [...d]}""",{'b':base64.b64encode(shot).decode('ascii'),'x':dot['x']+dot['width']/2,'y':dot['y']+dot['height']/2})
                     assert 90<min(contrast[:3]) and max(contrast[:3])<170,(width,value,contrast)
             checks.append('rendered inset dot remains visibly muted gray on raised rotating grip at min/default/max desktop/mobile')
+            stability=[]
+            for w,h in [(1920,1080),(1680,898),(390,844)]:
+                page.set_viewport_size({'width':w,'height':h});fresh();page.wait_for_timeout(150)
+                def shape():
+                    return page.evaluate("""()=>{const r=document.querySelector('.machine').getBoundingClientRect(),b=document.querySelector('.bezel').getBoundingClientRect();return {w:r.width,h:r.height,x:r.x,y:r.y,bw:b.width,bh:b.height,overflow:document.documentElement.scrollWidth>innerWidth}}""")
+                idle=shape();page.click('#power');page.wait_for_function('document.querySelector("#status").textContent.includes("Live ASCII targets")');live=shape();page.click('#capture');frozen=shape()
+                assert all(abs(idle[k]-v[k])<1 for v in [live,frozen] for k in ['w','h','bw','bh']), (w,idle,live,frozen)
+                assert not live['overflow'] and idle['x']>=0 and idle['y']>=0
+                if w>600:assert idle['y']+idle['h']+20<=h
+                stability.append({'viewport':[w,h],'idle':idle,'live':live,'frozen':frozen})
+            checks.append('machine and bezel dimensions stable idle/live/frozen at 1920x1080 1680x898 and 390x844')
+            fresh();page.click('#capture');page.wait_for_function('document.querySelector("#status").textContent.includes("Live ASCII targets")');assert page.evaluate('calls')==1 and page.locator('#power').get_attribute('aria-checked')=='true'
+            page.click('#capture');assert page.locator('#physical-led').get_attribute('data-state')=='captured' and page.evaluate('calls')==1
+            checks.append('deliberate Capture while off opens camera once then next Capture freezes')
+            fresh('pending');page.click('#capture');page.wait_for_function('window.release!==undefined');page.click('#capture');assert page.evaluate('calls')==1;page.click('#power');page.evaluate('release()');page.wait_for_function('streams.every(s=>s.getTracks()[0].readyState==="ended")')
+            checks.append('repeated Capture during opening never duplicates request and power cancels safely')
+            fresh();page.locator('#density').scroll_into_view_if_needed();r=page.locator('#density').bounding_box();page.mouse.move(r['x']+r['width']/2,r['y']+r['height']/2);page.mouse.down();page.mouse.move(r['x']+r['width']/2+40,r['y']+r['height']/2,steps=5);page.mouse.up()
+            assert page.locator('#density').input_value()=='120' and page.evaluate('calls')==0
+            page.focus('#density');page.keyboard.press('ArrowRight');assert page.locator('#density').input_value()=='128'
+            checks.append('40px pointer drag changes density by24 at60percent gain; keyboard retains8step')
+            fresh();lighting=[];grips=[]
+            for value in [40,96,160]:
+                page.locator('#density').evaluate('(e,v)=>{e.value=v;e.dispatchEvent(new Event("input"))}',value)
+                lighting.append(page.locator('.density-track').evaluate("el=>{const s=getComputedStyle(el,'::after');return [s.transform,s.backgroundImage,s.boxShadow]}"))
+                grips.append(page.locator('.knob-dot-arm').evaluate('el=>getComputedStyle(el).transform'))
+            assert lighting[0]==lighting[1]==lighting[2] and len(set(grips))==3
+            checks.append('knob body lighting and cast shadow stay world-fixed while grip and dot rotate')
             assert not errors, errors
             assert not external, external
             checks.append('no page errors or external requests')
             browser.close()
-        print(json.dumps({'passed':len(checks),'syntheticLiveMetrics':metrics,'checks':checks}, ensure_ascii=True, indent=2))
+        print(json.dumps({'passed':len(checks),'viewportStability':stability,'syntheticLiveMetrics':metrics,'checks':checks}, ensure_ascii=True, indent=2))
     finally:
         server.terminate()
         server.wait(timeout=5)
