@@ -1,53 +1,55 @@
-# Phosphor
+# ASCamera - FATQ
 
-A local ASCII photo booth for SD5913 Assignment 3. Live camera frames become green characters inside a fictional retro instrument. This is an evolving prototype, not a claim of completed submission or verified course compliance.
+A retro, local-first ASCII camera made for **SD5913 Assignment 3: An interactive experience** at PolyU.
 
-## Run
+**Live:** https://sd5913.fatq.top
 
-On macOS, double-click **Run.command** with [uv](https://docs.astral.sh/uv/) installed. Keep its Terminal open; Ctrl-C stops the server. Finder/security behaviour still needs a real-machine trial.
+## Idea and intended user
 
-Alternatively, from this folder:
+For someone who wants a playful camera portrait without an account or uploading their image: turn on the camera, see yourself in live ASCII, adjust character density, then freeze and keep a moment.
+
+## Use
+
+- **Power** starts or stops the camera. Permission is video-only.
+- **Take photo** also starts live preview when power is off. Once ready, press to freeze; press again to resume. Freezing keeps camera power on.
+- **Density** adjusts 40–160 columns, including before starting the camera. Dragging uses 60% of the original sensitivity; keyboard adjustment is supported.
+- **Switch camera** changes devices where supported. A single camera is never falsely switched by mirroring it.
+- **Copy** copies the current ASCII text, including spaces and line breaks.
+- **Save** exports the frozen image as a clean PNG with an `ASCamera - FATQ` footer and a local date/time/millisecond filename.
+
+Controls remain in place. Unavailable actions explain what to do inside the CRT. The screen's curvature is visual only; exported text and PNG are unwarped.
+
+## Run locally
+
+Install [uv](https://docs.astral.sh/uv/), then double-click **Run.command** on macOS, or run:
 
 ```sh
 uv run start.py
+```
+
+Open http://127.0.0.1:8765 if it does not open automatically. Keep the terminal running; press Ctrl+C to stop. Another port is supported:
+
+```sh
 uv run start.py --port 8766 --no-browser
 ```
 
-The server binds to 127.0.0.1 (default port 8765). Use localhost, not file://. No frontend build, CDN, API key or application package installation is needed. uv may provision Python on first use. Browser APIs require a supported secure context.
+No frontend build, CDN, API key or runtime package installation is required. Use localhost or HTTPS, not `file://`. First use of uv may download Python.
 
-## Current interaction
+## Screenshot
 
-- **Camera power** is the only initial camera entry. It requests video, never audio. Power OFF cancels pending work, stops tracks and clears the session image.
-- **Take photo** freezes the current frame immediately, without a countdown. Power stays ON and the camera remains active. Press it again to resume live ASCII using the same healthy stream.
-- **Switch camera** works from live preview. One-device setups report unavailability without another media request. A request alone never flips the same camera; actual device identity/facing determines verified switching and mirroring.
-- **Copy** copies the exact live/frozen ASCII text at click time, including whitespace. Clipboard denial/unavailability reports failure and attempts manual text selection.
-- **Save** downloads the frozen ASCII as a flat PNG. Its separate footer reads `ASCamera - FATQ`; filename format is `ascamera-portrait-YYYYMMDD-HHMMSS-mmm.png`, using local time.
-- **Density** uses a draggable, keyboard-accessible knob: 40–160 columns, step 8, default 96. It works while OFF, live or frozen. The numeric readout is inside the CRT.
+![Early prototype screenshot, not the current interface](demo-1200.png)
 
-The four action keys stay enabled and visible in one row; unavailable actions explain why without requesting permission. Power and knob sit horizontally together on the left. Narrow layouts can wrap the instrument/key groups. There is no public demo, Retake or Stop/Clear key.
+This is an early prototype screenshot; an up-to-date screenshot remains to be added.
 
-## Visual direction
+## Privacy and limitations
 
-Warm off-white housing, four sloping recess faces meeting gently bowed glass, sculpted keys, orange capture key, red mechanical power switch and a raised density grip with a subtle 3px marker. Boot lettering is real ASCII. English status and density feedback remain inside the green CRT.
+- No photo uploads, audio capture, analytics or automatic image history. Save and Copy are explicit actions.
+- Frozen images still hold an active camera stream. Power off, hiding/leaving the page or a camera interruption ends the session and clears it.
+- Permission denial, unavailable/busy cameras and clipboard failure produce feedback. Browser site settings control camera permissions.
+- Real-device Safari/iOS behaviour and camera latency need further verification. Screenshots and automated checks are not substitutes for user testing.
+- The GitHub repository is currently private for development. **The course requires a public repository URL for final submission.**
 
-One shared subtle SVG displacement curves the whole screen interior, including boot text, status and picture—not the physical controls. PNG and copied text stay unwarped. The earlier crt.js picture mesh is a legacy/test utility, not a runtime dependency. The full source frame is preserved rather than cropped.
-
-## Privacy and recovery
-
-- No automatic camera start, audio recording, upload, analytics, cookies, localStorage or automatic photo history.
-- Freezing pauses conversion, **not** the camera. Turn power OFF to release it.
-- Hiding the tab, pagehide or camera interruption closes the session. Returning does not restart it automatically.
-- Late results from cancelled permission requests are stopped. The browser's permission prompt itself cannot be dismissed by the app.
-- Permission denial, missing/busy cameras and unsupported/insecure contexts have recovery feedback. Browser site settings control permissions.
-- This is a private local tool, not a hardened public server. Save/copy only when you intend to create an external copy.
-
-Some runtime messages still mention removed Close/Stop controls or disabled switching. These are documented follow-up issues, not additional current controls.
-
-## Verification status
-
-This documentation pass did **not** run tests, use a real camera or visually certify screenshots. Earlier iterations reported passing suites; the latest handoff reported 86 tests, but source changed afterwards. **The current full suite is not confirmed passing.** In particular, tests/browser.py still expects `phosphor-portrait.png`, conflicting with the current timestamped filename and likely failing that assertion.
-
-Commands for a later authorized verification pass:
+## Verification
 
 ```sh
 node --test tests/ascii.test.js
@@ -56,16 +58,10 @@ uv run tests/launcher.py
 zsh -n Run.command
 ```
 
-Browser fixtures use synthetic Canvas MediaStreams, not physical cameras. Historical approximately 15 FPS observations describe synthetic DOM updates, not hardware latency. Safari/iOS, real front/rear switching, Finder launch, current visual quality and genuine peer testing remain pending. `demo-1200.png` and `demo-400.png` are early examples, not certified current screenshots.
+The latest reported regression passed 10 unit tests, 2 launcher tests and 79 browser checks (91 total). Browser checks use synthetic camera streams, not physical cameras. They include off-state capture startup, reduced knob sensitivity, fixed knob lighting and stable idle/live/frozen machine dimensions at desktop and mobile sizes. These results do not guarantee performance or compatibility on every device.
 
-## Documentation and delivery
+## Process and credits
 
-- [AI documentation index](docs/INDEX.md), [current state](CURRENT.md), [pending work](TODO.md).
-- [Process history](PROCESS.md): earlier countdown, fader, stop-on-capture and two-row layouts are historical and superseded.
-- [Credits and AI assistance](CREDITS.md): review and disclose assistance under current course policy.
-- A later private GitHub development repository was requested but is not yet confirmed or created. The assignment requires a public repository at delivery; resolve visibility and publication scope before submission. No repository publication is claimed here.
-
-## References
-
-- [SD5913 Week 5](https://github.com/sd5913/pfad/tree/2026/week05): brightness-to-character and interactive-parameter concepts. Existing classroom work remains untouched.
-- Browser reference entry points: [getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia), [Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API). These links are not a claim of live retrieval during this documentation pass.
+- [PROCESS.md](PROCESS.md): design changes, two classmates' reported feedback, adopted improvements and AI assistance.
+- [CREDITS.md](CREDITS.md): sources and attribution, including [SD5913 Week 5](https://github.com/sd5913/pfad/tree/2026/week05).
+- [docs/INDEX.md](docs/INDEX.md): technical knowledge base; [CURRENT.md](CURRENT.md) and [TODO.md](TODO.md): project-management notes that may contain earlier audit snapshots.
