@@ -37,9 +37,9 @@ No frontend build, CDN, API key or runtime package installation is required. Use
 
 ## Screenshot
 
-![Early prototype screenshot, not the current interface](demo-1200.png)
+![ASCamera interface](ascamera%20screenshot.png)
 
-This screenshot is a synthetic local preview used to document the interface; it is not a participant's photograph. The current browser layout remains subject to real-device visual review.
+Current interface screenshot supplied by the project owner.
 
 ## Privacy and limitations
 
