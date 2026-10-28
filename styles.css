@@ -114,3 +114,27 @@
 .ascii-heading .ascii-word{display:block;white-space:pre;font:inherit;letter-spacing:0}
 .ascii-heading .ascii-arrow{font:inherit;white-space:pre}
 @media(max-width:600px){#welcome .ascii-heading{font-size:8px;gap:8px 12px;margin:16px 0}}
+
+/* Responsive fit: full console within a 1080p first screen; mobile uses a landscape-biased CRT instead of a tall strip. */
+@media(min-width:601px){body{padding-top:24px;padding-bottom:24px}}
+@media(max-width:600px){.machine{--case-gutter:12px}#stage{height:clamp(170px,52vw,240px)}.screen-bottom{gap:6px}}
+@media(max-width:600px){
+ body{padding:20px 16px}
+ #welcome{padding:0}
+ #welcome .ascii-heading{flex-wrap:nowrap;font-size:6px;line-height:1.1;gap:6px;margin:10px 0}
+ #welcome .eyebrow{font-size:8px}
+ #welcome p:not(.eyebrow){font-size:9px;line-height:1.55}
+ .cursor{font-size:20px}
+ #stage{height:clamp(190px,54vw,240px)}
+}
+@media(max-width:600px){body{padding-block:18px}#stage{height:clamp(180px,50vw,230px)}}
+@media(max-width:600px){#welcome .ascii-heading{font-size:7px}}
+
+/* Desktop: treat the console as one physical object and scale the whole unit to the real viewport. */
+@media(min-width:601px){
+ body{height:100svh;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:16px}
+ main{display:flex;align-items:center;justify-content:center}
+ .machine{transform:scale(var(--fit-scale,1));transform-origin:center center;flex:none}
+}
+@media(min-width:601px){.machine{transform:none!important;zoom:var(--fit-scale,1)}}
+@media(min-width:601px){body{padding:16px 48px 80px}}

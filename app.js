@@ -101,3 +101,18 @@ $('density').addEventListener('input',syncDial);syncDial();
 const scaleTrack=document.querySelector('.density-track');for(let i=0;i<=10;i++){const tick=document.createElement('span');tick.className='scale-mark';tick.setAttribute('aria-hidden','true');tick.style.transform=`rotate(${ARC_START+i*ARC_SWEEP/10}deg) translateY(-39px)`;scaleTrack.append(tick);}for(const [name,text] of [['min','40'],['max','160']]){const n=document.createElement('span');n.className=`scale-number ${name}`;n.textContent=text;n.setAttribute('aria-hidden','true');scaleTrack.append(n);}
 
 const dotArm=document.createElement('span');dotArm.className='knob-dot-arm';dotArm.setAttribute('aria-hidden','true');dotArm.innerHTML='<span class="knob-dot"></span>';document.querySelector('.density-control').append(dotArm);
+
+// Scale the complete desktop console (screen + controls) to the real viewport height.
+function fitMachine(){
+  const machine=document.querySelector('.machine');
+  if(!machine)return;
+  if(window.innerWidth<=600){document.documentElement.style.removeProperty('--fit-scale');return;}
+  const zoom=parseFloat(getComputedStyle(machine).zoom)||1;
+  const rect=machine.getBoundingClientRect();
+  const naturalW=rect.width/zoom,naturalH=rect.height/zoom;
+  const scale=Math.min(1,(window.innerHeight-96)/naturalH,(window.innerWidth-112)/naturalW);
+  document.documentElement.style.setProperty('--fit-scale',String(Math.max(.5,scale)));
+}
+requestAnimationFrame(fitMachine);
+window.addEventListener('load',fitMachine,{once:true});
+window.addEventListener('resize',fitMachine);
