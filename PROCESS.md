@@ -13,12 +13,12 @@ For SD5913 Assignment 3, I wanted to turn a camera portrait into a playful ASCII
 
 ## Classmate trial and response
 
-Two classmates tried the experience. The feedback below was reported by the project owner; it is paraphrased, not a verbatim quotation. No names or recordings are retained. Both classmates tried the experience independently before asking the owner for help; no instructions were given before their initial attempts.
+Two classmates tried the experience. The feedback below was reported by the project owner; it is paraphrased, not a verbatim quotation. Participants are identified by surname only, as supplied by the project owner; no recordings are retained. Both classmates tried the experience independently before asking the owner for help; no instructions were given before their initial attempts.
 
 | Participant | Observation | Adopted change |
 | --- | --- | --- |
-| A | The density knob was too sensitive. | Reduced pointer-drag sensitivity to 60% of the previous mapping, retaining 40–160 columns and the existing keyboard steps. |
-| B | It was unclear how to start; Take photo should turn on the camera. | Take photo now starts camera permission and live preview when off. A subsequent press captures; repeated pending clicks do not duplicate requests. |
+| Zhou | The density knob was too sensitive. | Reduced pointer-drag sensitivity to 60% of the previous mapping, retaining 40–160 columns and the existing keyboard steps. |
+| Yu | It was unclear how to start; Take photo should turn on the camera. | Take photo now starts camera permission and live preview when off. A subsequent press captures; repeated pending clicks do not duplicate requests. |
 
 Both changes are implemented and covered by automated checks. Neither participant has yet been reported to have retried the revised version; follow-up testing remains pending.
 
